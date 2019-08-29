@@ -4,7 +4,8 @@ version = "0.1.0"
 authors = ["Ken Bateman <novadenizen@gmail.com>"]
 edition = "2018"
 description = "red_primality provides a quick accurate primality test for all u64"
-repository = "https://github.com/NovaDenizen/red_primality.git"
+license = "LGPL-3.0"
+epository = "https://github.com/NovaDenizen/red_primality.git"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
