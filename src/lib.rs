@@ -137,6 +137,54 @@ fn sprp_u128(n: u128, a: u8) -> bool {
     false
 }
 
+/// PrimeIter returns a sequence of primes in ascending order.
+///
+/// # Panics
+///
+/// This iterator will panic if it tries to generate a prime larger than `std::u64::MAX`.
+///
+/// To avoid panicking, use `Iterator::take_while()` or some other mechanism for limiting
+/// consumption.
+#[derive(Clone)]
+pub struct PrimeIter {
+    n: u64,
+}
+
+impl PrimeIter {
+    /// Returns an iterator that generates all u64 primes in ascending order starting at the first
+    /// afer the parameter `n`.
+    pub fn from(n: u64) -> Self {
+        PrimeIter { n }
+    }
+    /// Returns an iterator that generates all u64 primes in ascending order.
+    ///
+    pub fn all() -> Self {
+        Self::from(2)
+    }
+}
+
+impl Iterator for PrimeIter {
+    type Item = u64;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.n <= 2 {
+            self.n = 3;
+            Some(2)
+        } else {
+            if self.n & 1 == 0 {
+                self.n += 1;
+            }
+            while !is_u64_prime(self.n) {
+                // TODO: return None instead of panicing on overflow?
+                // TODO: look at n mod 15 to skip known multiples of 3 and 5?
+                self.n += 2;
+            }
+            let res = Some(self.n);
+            self.n += 2;
+            res
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -182,4 +230,18 @@ mod tests {
         }
     }
 
+    #[test]
+    fn test_iter() {
+        use primal::Primes;
+        let mut ps1 = Primes::all().map(|n| n as u64).take_while(|n| n < &LIMIT);
+        let mut ps2 = PrimeIter::all().take_while(|n| n < &LIMIT);
+        loop {
+            let v1 = ps1.next();
+            let v2 = ps2.next();
+            assert_eq!(v1, v2, "Iterators were inconsistent");
+            if v1.is_none() {
+                break;
+            }
+        }
+    }
 }
