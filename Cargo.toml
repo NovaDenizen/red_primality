@@ -1,6 +1,6 @@
 [package]
 name = "red_primality"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Ken Bateman <novadenizen@gmail.com>"]
 edition = "2018"
 description = "red_primality provides a quick accurate primality test for all u64"

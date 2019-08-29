@@ -11,6 +11,7 @@
 //!     assert!(is_u64_prime(5));
 //!     assert!(!is_u64_prime(6));
 //! }
+//! ```
 
 #![deny(missing_docs)]
 
