@@ -27,7 +27,7 @@
 /// of tests to efficiently and determinstically determine primality for all integers inn the `u64`
 /// range.
 ///
-/// https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test#Testing_against_small_sets_of_bases
+/// See [Wikipedia](https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test#Testing_against_small_sets_of_bases) for more details. 
 ///
 pub fn is_u64_prime(n: u64) -> bool
 {
@@ -61,6 +61,13 @@ pub fn is_u64_prime(n: u64) -> bool
     } 
 }
 
+
+/// This is the largest prime integer that fits in a `u64`.
+///
+/// Equivalent to 2^64 - 59.
+///
+/// See [the prime pages](https://primes.utm.edu/lists/2small/0bit.html) for verification.
+pub const MAX_U64_PRIME: u64 = 18_446_744_073_709_551_557;
 
 fn sprp_u64(n: u64, a: u8) -> bool {
     let a = a as u64;
@@ -147,15 +154,28 @@ fn sprp_u128(n: u128, a: u8) -> bool {
 /// consumption.
 #[derive(Clone)]
 pub struct PrimeIter {
-    n: u64,
+    last_output: u64, 
+    next_jump: u64,
 }
 
 impl PrimeIter {
     /// Returns an iterator that generates all u64 primes in ascending order starting at the first
     /// afer the parameter `n`.
     pub fn from(n: u64) -> Self {
-        PrimeIter { n }
+        let last_output = if is_u64_prime(n) {
+            // safe since n >= 2
+            n - 1
+        } else {
+            n
+        };
+        let next_jump = if last_output < PrimeIter::PRIME_JUMPS.len() as u64 {
+            1
+        } else {
+            PrimeIter::PRIME_JUMPS[(n % (PrimeIter::PRIME_JUMPS.len() as u64)) as usize]
+        } as u64;
+        PrimeIter { last_output, next_jump }
     }
+
     /// Returns an iterator that generates all u64 primes in ascending order.
     ///
     pub fn all() -> Self {
@@ -202,17 +222,35 @@ fn dump_jumps() {
 fn dump_end() {
     for p in (std::u64::MAX - 1000)..=std::u64::MAX {
         if is_u64_prime(p) {
-            println!("{} (MAX - {}) is prime", p, std::u64::MAX - p);
+            println!("{} (2^64 - {}) is prime", p, std::u64::MAX - p + 1);
         }
     }
+    // results appear to match https://primes.utm.edu/lists/2small/0bit.html
 }
 
 
 #[test]
+#[should_panic]
+fn run_past_end() {
+    let start = std::u64::MAX - 1000;
+    let ps = PrimeIter::from(start);
+    let mut got_biggest = false;
+    // expect ps to panic when it tries to move past end
+    for p in ps {
+        println!("got {}", p);
+        if got_biggest {
+            println!("Should not have gotten a prime after {}", MAX_U64_PRIME);
+            return;  // this causes test failure because of [should_pannic]
+        }
+        if p == MAX_U64_PRIME {
+            got_biggest = true;
+        }
+    }
+}
+#[test]
 fn check_includes_biggest() {
     let start = std::u64::MAX - 1000;
     let ps = PrimeIter::from(start);
-    const MAX_U64_PRIME: u64 = 18446744073709551557;
     for p in ps {
         if p == MAX_U64_PRIME {
             return;
@@ -225,14 +263,16 @@ impl Iterator for PrimeIter {
     type Item = u64;
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            let res = self.n;
-            if self.n < PrimeIter::PRIME_JUMPS.len() as u64 {
-                self.n += 1;
-            } else {
-                self.n += PrimeIter::PRIME_JUMPS[self.n as usize % PrimeIter::PRIME_JUMPS.len()] as u64;
-            }
-            if is_u64_prime(res) {
-                return Some(res);
+            // overflow panic will occur here, after last valid prime returned
+            self.last_output += self.next_jump;
+            self.next_jump = 
+                if self.last_output < PrimeIter::PRIME_JUMPS.len() as u64 {
+                    1
+                } else {
+                    PrimeIter::PRIME_JUMPS[(self.last_output % (PrimeIter::PRIME_JUMPS.len() as u64)) as usize] as u64
+                };
+            if is_u64_prime(self.last_output) {
+                return Some(self.last_output);
             }
         }
     }
@@ -284,7 +324,7 @@ mod tests {
     }
 
     #[test]
-    fn test_iter() {
+    fn compare_iter() {
         use primal::Primes;
         let mut ps1 = Primes::all().map(|n| n as u64).take_while(|n| n < &LIMIT);
         let mut ps2 = PrimeIter::all().take_while(|n| n < &LIMIT);
