@@ -337,4 +337,19 @@ mod tests {
             }
         }
     }
+    #[test]
+    fn compare_all_magnitudes() {
+        let radius = 1000;
+        for mag in 15..=63 {
+            let mid = 1 << mag;
+            let start = mid - radius;
+            let end = mid + radius;
+            for n in start..=end {
+                test_prime_excessive(n);
+            }
+        }
+        for n in (std::u64::MAX - radius)..=std::u64::MAX {
+            test_prime_excessive(n);
+        }
+    }
 }
