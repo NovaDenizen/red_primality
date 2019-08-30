@@ -1,5 +1,3 @@
-
-
 //! red_primality provides a quick accurate primality test for all u64.
 //!
 //! # Example
