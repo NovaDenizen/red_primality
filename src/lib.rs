@@ -158,7 +158,19 @@ pub struct PrimeIter {
 
 impl PrimeIter {
     /// Returns an iterator that generates all u64 primes in ascending order starting at the first
-    /// afer the parameter `n`.
+    /// on or after the parameter `n`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use red_primality::PrimeIter;
+    ///
+    /// fn main() {
+    ///     let small_primes: Vec<u64> = PrimeIter::from(5).take_while(|n| n < &20).collect();
+    ///     assert_eq!(small_primes, vec![5, 7, 11, 13, 17, 19]);
+    /// }
+    /// ```
+    ///
     pub fn from(n: u64) -> Self {
         let last_output = if is_u64_prime(n) {
             // safe since n >= 2
