@@ -161,26 +161,79 @@ impl PrimeIter {
     pub fn all() -> Self {
         Self::from(2)
     }
+    // cargo test -- --nocapture dump_jumps
+    // average jump len = 3.6952380952380954
+    const PRIME_JUMPS: [u8; 210] = [1, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 2, 1, 4, 3, 2, 1, 2, 1, 4, 3,
+        2, 1, 6, 5, 4, 3, 2, 1, 2, 1, 6, 5, 4, 3, 2, 1, 4, 3, 2, 1, 2, 1, 4, 3, 2, 1, 6, 5, 4, 3, 2, 1,
+        6, 5, 4, 3, 2, 1, 2, 1, 6, 5, 4, 3, 2, 1, 4, 3, 2, 1, 2, 1, 6, 5, 4, 3, 2, 1, 4, 3, 2, 1, 6, 5,
+        4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 4, 3, 2, 1, 2, 1, 4, 3, 2, 1, 2, 1, 4, 3, 2, 1, 8, 7, 6, 5,
+        4, 3, 2, 1, 6, 5, 4, 3, 2, 1, 4, 3, 2, 1, 6, 5, 4, 3, 2, 1, 2, 1, 4, 3, 2, 1, 6, 5, 4, 3, 2, 1,
+        2, 1, 6, 5, 4, 3, 2, 1, 6, 5, 4, 3, 2, 1, 4, 3, 2, 1, 2, 1, 4, 3, 2, 1, 6, 5, 4, 3, 2, 1, 2, 1,
+        6, 5, 4, 3, 2, 1, 4, 3, 2, 1, 2, 1, 4, 3, 2, 1, 2, 1, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 2];
+
+}
+
+#[test]
+fn dump_jumps() {
+    use num_integer::Integer;
+    let len = 210; // 2*3*5*7
+    let mut v = Vec::new();
+    for i in 0_u64..len {
+        for j in 1..30 {
+            // we're looking for the first ofset that results in a number that doesn't obviously
+            // share any factors with len.
+            if (i + j).gcd(&len) == 1 {
+                v.push(j);
+                break;
+            }
+        }
+    }
+    { // collect stats
+        let mut tot_jump = 0;
+        for i in 0..(v.len()/2) {
+            tot_jump += v[i*2 + 1];
+        }
+        println!("average jump len = {}", tot_jump as f64 / (len as f64) * 2.0);
+    }
+    println!("const PRIME_JUMPS: [u8; {}] = {:?};", len, v);
+}
+
+#[test]
+fn dump_end() {
+    for p in (std::u64::MAX - 1000)..=std::u64::MAX {
+        if is_u64_prime(p) {
+            println!("{} (MAX - {}) is prime", p, std::u64::MAX - p);
+        }
+    }
+}
+
+
+#[test]
+fn check_includes_biggest() {
+    let start = std::u64::MAX - 1000;
+    let ps = PrimeIter::from(start);
+    const MAX_U64_PRIME: u64 = 18446744073709551557;
+    for p in ps {
+        if p == MAX_U64_PRIME {
+            return;
+        }
+    }
+    panic!("Never got biggest u64 prime {}", MAX_U64_PRIME);
 }
 
 impl Iterator for PrimeIter {
     type Item = u64;
     fn next(&mut self) -> Option<Self::Item> {
-        if self.n <= 2 {
-            self.n = 3;
-            Some(2)
-        } else {
-            if self.n & 1 == 0 {
+        loop {
+            let res = self.n;
+            if self.n < PrimeIter::PRIME_JUMPS.len() as u64 {
                 self.n += 1;
+            } else {
+                self.n += PrimeIter::PRIME_JUMPS[self.n as usize % PrimeIter::PRIME_JUMPS.len()] as u64;
             }
-            while !is_u64_prime(self.n) {
-                // TODO: return None instead of panicing on overflow?
-                // TODO: look at n mod 15 to skip known multiples of 3 and 5?
-                self.n += 2;
+            if is_u64_prime(res) {
+                return Some(res);
             }
-            let res = Some(self.n);
-            self.n += 2;
-            res
         }
     }
 }

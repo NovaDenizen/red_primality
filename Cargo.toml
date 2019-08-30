@@ -13,3 +13,4 @@ repository = "https://github.com/NovaDenizen/red_primality.git"
 
 [dev-dependencies]
 primal = "0.2.3"
+num-integer = "0.1.41"
