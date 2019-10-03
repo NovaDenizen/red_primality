@@ -15,3 +15,4 @@ documentation = "https://docs.rs/red_primality"
 [dev-dependencies]
 primal = "0.2.3"
 num-integer = "0.1.41"
+rust-gmp = "0.5.0"

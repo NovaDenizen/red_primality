@@ -304,6 +304,7 @@ mod tests {
             test_prime_consistency(&sieve, i);
         }
     }
+    // this won't work right for really small n, but those are already well-tested.
     fn excessive_sprp_test(n: u64) -> bool {
         assert!(n > LIMIT);
         let n = n as u128;
@@ -319,7 +320,20 @@ mod tests {
         if n < LIMIT {
             return;  // donn't bother testinng small ones.
         }
-        assert_eq!(excessive_sprp_test(n), is_u64_prime(n), "excessive test failed f= rn={}", n);
+        let x_sprp_res = excessive_sprp_test(n);
+        let is_prime_res = is_u64_prime(n);
+        assert_eq!(x_sprp_res, is_prime_res, "excessive test failed for n={}", n);
+        {
+            use gmp::mpz::{ Mpz, ProbabPrimeResult };
+            let n_gmp = Mpz::from(n);
+            let gmp_pp_res = n_gmp.probab_prime(100);
+            let gmp_pp_res: bool = match gmp_pp_res {
+                ProbabPrimeResult::NotPrime => false,
+                _ => true,
+            };
+            assert_eq!(gmp_pp_res, is_prime_res, "excessive gmp test failed for n={}", n);
+        }
+
     }
     #[test]
     fn big_numbers() {
