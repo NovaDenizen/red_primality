@@ -9,18 +9,17 @@ use std::collections::BTreeMap;
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug)]
 pub struct PrimeFactorization {
-    facs: BTreeMap<u64, u64>,
+    facs: BTreeMap<Prime, u64>,
 }
 
 impl PrimeFactorization {
     fn new() -> Self {
         PrimeFactorization { facs: BTreeMap::new() }
     }
-    fn add(&mut self, prime: u64, power: u64) {
-        assert!(is_u64_prime(prime), "PrimeFactorization tried to insert composite {}", prime);
+    fn add(&mut self, prime: Prime, power: u64) {
         *self.facs.entry(prime).or_insert(0) += power;
     }
-    pub fn iter<'a>(&'a self) -> impl 'a + Iterator<Item = (u64, u64)>
+    pub fn iter<'a>(&'a self) -> impl 'a + Iterator<Item = (Prime, u64)>
     {
         self.facs.iter().map(|(x,y)| (*x, *y))
     }
@@ -41,7 +40,6 @@ impl IncFac {
     fn add(&mut self, _n: u64) {
         unimplemented!();
     }
-
 }
 
 

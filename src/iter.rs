@@ -1,5 +1,6 @@
 
 use super::is_u64_prime;
+use super::Prime;
 
 /// PrimeIter returns a sequence of primes in ascending order.
 ///
@@ -60,6 +61,48 @@ impl PrimeIter {
         2, 1, 6, 5, 4, 3, 2, 1, 6, 5, 4, 3, 2, 1, 4, 3, 2, 1, 2, 1, 4, 3, 2, 1, 6, 5, 4, 3, 2, 1, 2, 1,
         6, 5, 4, 3, 2, 1, 4, 3, 2, 1, 2, 1, 4, 3, 2, 1, 2, 1, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 2];
 
+}
+
+/// Produces a sequence of certified primes.
+///
+/// Cost and behavior should be identical to PrimeIter, since it is a zero-cost wrapper around
+/// PrimeIter.
+///
+/// CertIter will panic if it tries to produce a value larger than MAX_u64_PRIME, the same as
+/// PrimeIter.
+///
+pub struct CertIter {
+    pi: PrimeIter,
+}
+
+impl CertIter {
+    /// Returns an CertIter that produces all u64 primes.
+    pub fn all() -> Self {
+        Self::from_pi(PrimeIter::all())
+    }
+    /// Returns a CertIter that produces all u64 primes at or above `n`.
+    pub fn from(n: u64) -> Self {
+        Self::from_pi(PrimeIter::from(n))
+    }
+    /// Turns a PrimeIter into a CertIter.
+    pub fn from_pi(pi: PrimeIter) -> Self {
+        CertIter { pi }
+    }
+}
+
+impl From<PrimeIter> for CertIter {
+    fn from(pi: PrimeIter) -> Self {
+        CertIter::from_pi(pi)
+    }
+}
+
+
+impl Iterator for CertIter {
+    type Item = Prime;
+    fn next(&mut self) -> Option<Self::Item> {
+        // this is safe because the PrimeIter only outputs primes.
+        self.pi.next().map(|n| unsafe { Prime::new_unsafe(n) })
+    }
 }
 
 #[test]

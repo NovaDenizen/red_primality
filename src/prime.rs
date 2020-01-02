@@ -1,7 +1,7 @@
 
 
 /// Wrapper type certifying that a u64 is prime.
-#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Debug)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Debug, Hash)]
 pub struct Prime {
     n: u64,
 }
@@ -13,7 +13,7 @@ impl std::fmt::Display for Prime {
 }
 
 impl Prime {
-    /// Checks if a u64 is prime
+    /// Produces a certified prime, if appropriate.
     pub fn new(n: u64) -> Option<Prime> {
         if is_u64_prime(n) {
             Some(Prime { n })
