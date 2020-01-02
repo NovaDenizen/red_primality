@@ -178,12 +178,13 @@ pub fn factor(n: u64) -> PrimeFactorization
 mod tests {
     use super::*;
 
-    fn test_factor(n: u64, noisy: bool) {
+    fn test_factor(n: u64, noisy: bool) -> PrimeFactorization {
         let pf = factor(n);
         if noisy {
             println!("factor({}): {:?}", n, pf);
         }
         assert_eq!(pf.product(), n, "test_ffactor({}) didn't work", n);
+        pf
     }
 
     #[test]
@@ -200,7 +201,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_factor_0() {
-        test_factor(0, false)
+        test_factor(0, false);
     }
 
     #[test]
@@ -208,6 +209,27 @@ mod tests {
         let radius = 10_000;
         for n in std::u64::MAX - radius..=std::u64::MAX {
             test_factor(n, true);
+        }
+    }
+
+    /// returns a bunch of big primes just uner 2^32.
+    fn medium_primes(count: usize) -> impl Iterator<Item=Prime>
+    {
+        CertIter::from(0xff00_0000).take(count)
+    }
+    #[test]
+    fn factor_semiprimes() {
+        let primes: Vec<Prime> = medium_primes(30).collect();
+        for i in 0..primes.len() - 1 {
+            for j in i+1..primes.len() {
+                let p1 = primes[i];
+                let p2 = primes[j];
+                let mut pfguess = PrimeFactorization::new();
+                pfguess.add(p1, 1);
+                pfguess.add(p2, 1);
+                let pf = test_factor(p1.get() * p2.get(), true);
+                assert_eq!(pfguess, pf, "factor_semiprimes, p1={}, p2={}", p1, p2);
+            }
         }
     }
 
