@@ -44,6 +44,19 @@ impl PrimeFactorization {
         }
         res
     }
+
+    /// Calculates Euler's totient function.
+    pub fn euler_totient(&self) -> u64 {
+        let mut res = 1;
+        for (p,pow) in self.iter() {
+            let p = p.get();
+            res *= p - 1;
+            for _ in 1..pow {
+                res *= p;
+            }
+        }
+        res
+    }
 }
 
 /// An incomplete factorization of a number.
@@ -215,6 +228,13 @@ pub fn factor(n: u64) -> PrimeFactorization
 
 }
 
+/// Euler's totient function.
+///
+/// Factors `n` and uses the factorization to calculate the totient function.
+pub fn euler_totient(n: u64) -> u64 {
+    factor(n).euler_totient()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -274,4 +294,27 @@ mod tests {
         }
     }
 
+    fn brute_force_totient(n: u64) -> u64 {
+        use num::Integer;
+        let mut res = 0;
+        for i in 1..=n {
+            if n.gcd(&i) == 1 {
+                res += 1;
+            }
+        }
+        res
+    }
+
+    fn test_totient(n: u64) {
+        let t1 = euler_totient(n);
+        let t2 = brute_force_totient(n);
+        assert_eq!(t1, t2, "test_totient({})", n);
+    }
+
+    #[test]
+    fn small_totients() {
+        for i in 1..1000 {
+            test_totient(i);
+        }
+    }
 }
