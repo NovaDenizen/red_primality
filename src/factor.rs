@@ -15,16 +15,16 @@ pub struct PrimeFactorization {
 
 impl PrimeFactorization {
     /// Creates a new PrimeFactoriazation
-    fn new() -> Self {
+    pub fn new() -> Self {
         PrimeFactorization { facs: BTreeMap::new() }
     }
     /// Add a power of a prime to this factorization.
-    fn add(&mut self, prime: Prime, power: u64) {
+    pub fn add(&mut self, prime: Prime, power: u64) {
         *self.facs.entry(prime).or_insert(0) += power;
     }
 
     /// Add all the factors in the other PrimeFactorization into this one.
-    fn add_pf(&mut self, pf: &Self, fac: u64) {
+    pub fn add_pf(&mut self, pf: &Self, fac: u64) {
         for (n, np) in pf.iter() {
             self.add(n, np*fac);
         }
@@ -192,6 +192,11 @@ fn factor_rho(n: u64) -> PrimeFactorization {
 
 /// Determines the prime factors of a given u64.
 ///
+/// This function uses a few iterations of trial division, then switches to Pollard's rho
+/// algorithm.  The algorithm is not deterministic, but On my laptop it averages less than 100ms
+/// for products of two factors slightly smaller than 2^32, which is the expected worst case
+/// scenario.
+///
 /// # Panics
 ///
 /// This function will panic if it attempts to factor 0.
@@ -255,7 +260,7 @@ mod tests {
     }
     #[test]
     fn factor_semiprimes() {
-        let primes: Vec<Prime> = medium_primes(30).collect();
+        let primes: Vec<Prime> = medium_primes(15).collect();
         for i in 0..primes.len() - 1 {
             for j in i+1..primes.len() {
                 let p1 = primes[i];
