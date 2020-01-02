@@ -31,6 +31,13 @@ impl Prime {
     }
 }
 
+impl std::ops::Deref for Prime {
+    type Target = u64;
+    fn deref(&self) -> &Self::Target {
+        &self.n
+    }
+}
+
 
 
 
