@@ -1,11 +1,16 @@
 
 
 /// Wrapper type certifying that a u64 is prime.
-#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Debug, Hash)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash)]
 pub struct Prime {
     n: u64,
 }
 
+impl std::fmt::Debug for Prime {
+    fn fmt(&self, w: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(w, "{}", self.n)
+    }
+}
 impl std::fmt::Display for Prime {
     fn fmt(&self, w: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(w, "{}", self.n)

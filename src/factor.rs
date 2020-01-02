@@ -34,7 +34,7 @@ impl PrimeFactorization {
     {
         self.facs.iter().map(|(x,y)| (*x, *y))
     }
-    /// Multiply out the contained factors and powers, yielding hte product they represent.
+    /// Multiply out the contained factors and powers, yielding the product they represent.
     pub fn product(&self) -> u64 {
         let mut res = 1;
         for (p, pow) in self.iter() {
@@ -77,7 +77,7 @@ impl IncFac {
     }
     fn take_composite(&mut self) -> Option<(u64, u64)> {
         let res = self.comps.iter().next().map( |(n, np)| (*n, *np));
-        res.map(|(n, np)| self.comps.remove(&n));
+        res.map(|(n, _)| self.comps.remove(&n));
         res
     }
 }
@@ -178,8 +178,11 @@ pub fn factor(n: u64) -> PrimeFactorization
 mod tests {
     use super::*;
 
-    fn test_factor(n: u64) {
+    fn test_factor(n: u64, noisy: bool) {
         let pf = factor(n);
+        if noisy {
+            println!("factor({}): {:?}", n, pf);
+        }
         assert_eq!(pf.product(), n, "test_ffactor({}) didn't work", n);
     }
 
@@ -190,14 +193,22 @@ mod tests {
             if i % 1000 == 0 {
                 println!("{}", i);
             }
-            test_factor(i);
+            test_factor(i, false);
         }
     }
 
     #[test]
     #[should_panic]
     fn test_factor_0() {
-        test_factor(0)
+        test_factor(0, false)
+    }
+
+    #[test]
+    fn factor_bigs() {
+        let radius = 10_000;
+        for n in std::u64::MAX - radius..=std::u64::MAX {
+            test_factor(n, true);
+        }
     }
 
 }
