@@ -107,7 +107,7 @@ impl Iterator for CertIter {
 
 #[test]
 fn dump_jumps() {
-    use num_integer::Integer;
+    use num::Integer;
     let len = 210; // 2*3*5*7
     let mut v = Vec::new();
     for i in 0_u64..len {
