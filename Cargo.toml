@@ -1,6 +1,6 @@
 [package]
 name = "red_primality"
-version = "0.1.7"
+version = "0.2.0"
 authors = ["Ken Bateman <novadenizen@gmail.com>"]
 edition = "2018"
 description = "red_primality provides a quick accurate primality test for all u64"
@@ -11,7 +11,7 @@ documentation = "https://docs.rs/red_primality"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-num = "0.1.42"
+num = "0.2.0"
 
 [dev-dependencies]
 primal = "0.2.3"
