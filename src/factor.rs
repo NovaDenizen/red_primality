@@ -70,6 +70,29 @@ impl PrimeFactorization {
         }
         res
     }
+
+    /// Runs a closure on all divisors of n, including 1 and n.
+    ///
+    /// No particular order of divisors is guaranteed.
+    pub fn for_all_divisors<F: FnMut(u64)>(&self, mut f: F) {
+        fn iter<F: FnMut(u64)>(n: u64, facs: &[(Prime, u64)], f: &mut F) {
+            if facs.len() == 0 {
+                f(n)
+            } else {
+                let (p,pow) = facs[0];
+                let p = p.get();
+                let new_facs = &facs[1..];
+                iter(n, new_facs, f);
+                let mut new_n = n;
+                for _ in 1..=pow {
+                    new_n *= p;
+                    iter(new_n, new_facs, f);
+                }
+            }
+        }
+        let facs: Vec<(Prime, u64)> = self.iter().collect();
+        iter(1, &facs, &mut f);
+    }
 }
 
 /// An incomplete factorization of a number.
@@ -256,7 +279,11 @@ pub fn euler_totient(n: u64) -> u64 {
 ///
 /// Panics when y is zero.
 pub fn mobius(x: u64, y: u64) -> i64 {
-    if x % y != 0 {
+    if x == 0 {
+        0
+    } else if y == 0 {
+        panic!("Tried to calculate mobius function of {}/{}", x, y);
+    } else if x % y != 0 {
         0
     } else {
         factor(x/y).mobius()
@@ -266,6 +293,7 @@ pub fn mobius(x: u64, y: u64) -> i64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::BTreeSet;
 
     fn test_factor(n: u64, noisy: bool) -> PrimeFactorization {
         let pf = factor(n);
@@ -343,6 +371,34 @@ mod tests {
     fn small_totients() {
         for i in 1..1000 {
             test_totient(i);
+        }
+    }
+
+    fn brute_force_divisors(n: u64) -> BTreeSet<u64> {
+        let mut res = BTreeSet::new();
+        for i in 1..=n {
+            if n % i == 0 {
+                res.insert(i);
+            }
+        }
+        res
+    }
+    fn fast_divisors(n: u64) -> BTreeSet<u64> {
+        let mut res = BTreeSet::new();
+        let fac = factor(n);
+        fac.for_all_divisors(|d| { res.insert(d); });
+        res
+    }
+    fn test_divisors(n: u64) {
+        let d1 = brute_force_divisors(n);
+        let d2 = fast_divisors(n);
+        assert_eq!(d1, d2, "test_divisorss({})", n);
+    }
+
+    #[test]
+    fn small_divisors() {
+        for i in 1..=1000 {
+            test_divisors(i);
         }
     }
 }
