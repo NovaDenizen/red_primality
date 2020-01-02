@@ -8,21 +8,26 @@ use std::collections::BTreeMap;
 
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug)]
+/// Represents a collection of powers of prime factors.
 pub struct PrimeFactorization {
     facs: BTreeMap<Prime, u64>,
 }
 
 impl PrimeFactorization {
+    /// Creates a new PrimeFactoriazation
     fn new() -> Self {
         PrimeFactorization { facs: BTreeMap::new() }
     }
+    /// Add a power of a prime to this factorization.
     fn add(&mut self, prime: Prime, power: u64) {
         *self.facs.entry(prime).or_insert(0) += power;
     }
+    /// Create an iterator over the contained factors and powers.
     pub fn iter<'a>(&'a self) -> impl 'a + Iterator<Item = (Prime, u64)>
     {
         self.facs.iter().map(|(x,y)| (*x, *y))
     }
+    /// Multiply out the contained factors and powers, yielding hte product they represent.
     pub fn product(&self) -> u64 {
         let mut res = 1;
         for (p, pow) in self.iter() {
@@ -91,6 +96,11 @@ fn trial_div(mut n: u64, limit: u64) -> (u64, PrimeFactorization)
     (n, res)
 }
 
+/// Determines the prime factors of a given u64.
+///
+/// # Panics
+///
+/// This function will panic if it attempts to factor 0.
 pub fn factor(n: u64) -> PrimeFactorization
 {
     let limit = 1_000_000;
@@ -113,5 +123,11 @@ fn factor_smalls() {
         }
         test_factor(i);
     }
+}
+
+#[test]
+#[should_panic]
+fn test_factor_0() {
+    test_factor(0)
 }
 

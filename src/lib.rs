@@ -20,3 +20,4 @@ mod iter;
 pub use iter::*;
 
 mod factor;
+pub use factor::*;
