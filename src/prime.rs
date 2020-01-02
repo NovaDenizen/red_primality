@@ -1,3 +1,41 @@
+
+
+/// Wrapper type certifying that a u64 is prime.
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Debug)]
+pub struct Prime {
+    n: u64,
+}
+
+impl std::fmt::Display for Prime {
+    fn fmt(&self, w: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(w, "{}", self.n)
+    }
+}
+
+impl Prime {
+    /// Checks if a u64 is prime
+    pub fn new(n: u64) -> Option<Prime> {
+        if is_u64_prime(n) {
+            Some(Prime { n })
+        } else {
+            None
+        }
+    }
+    /// Forges a primality certificate.  Use with caution.
+    pub unsafe fn new_unsafe(n: u64) -> Prime {
+        Prime { n }
+    }
+    /// Get the contained prime.
+    pub fn get(&self) -> u64 {
+        self.n
+    }
+}
+
+
+
+
+
+///
 /// Determines if the given parameter is prime.
 ///
 /// The Miller-Rabin primality test can be said to have two results:  "Not Prime" or "Probably

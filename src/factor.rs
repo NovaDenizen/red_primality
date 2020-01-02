@@ -1,7 +1,11 @@
 
+// TODO: Remove this
+#![allow(dead_code)]
+
 use super::*;
 
 use std::collections::BTreeMap;
+
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug)]
 pub struct PrimeFactorization {
@@ -9,7 +13,7 @@ pub struct PrimeFactorization {
 }
 
 impl PrimeFactorization {
-    n new() -> Self {
+    fn new() -> Self {
         PrimeFactorization { facs: BTreeMap::new() }
     }
     fn add(&mut self, prime: u64, power: u64) {
