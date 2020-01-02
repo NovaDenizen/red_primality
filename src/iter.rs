@@ -175,8 +175,15 @@ impl Iterator for PrimeIter {
     type Item = u64;
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            // overflow panic will occur here, after last valid prime returned
-            self.last_output += self.next_jump;
+            // overflow panic should occur here in debug, after last valid prime returned
+            let next_output = self.last_output + self.next_jump;
+
+            // but in release we need to check manually.
+            if next_output < self.last_output {
+                panic!("PrimeIter has overflowed past std::u64::MAX");
+            }
+            self.last_output = next_output;
+
             self.next_jump = 
                 if self.last_output < PrimeIter::PRIME_JUMPS.len() as u64 {
                     1
