@@ -14,10 +14,9 @@
 #![deny(missing_docs)]
 
 mod prime;
-
-pub use prime::is_u64_prime;
-pub use prime::MAX_U64_PRIME;
+pub use prime::*;
 
 mod iter;
-pub use iter::PrimeIter;
+pub use iter::*;
 
+mod factor;
