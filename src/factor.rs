@@ -57,6 +57,19 @@ impl PrimeFactorization {
         }
         res
     }
+
+    /// Calculates the Möbius function for this prime factorization.
+    pub fn mobius(&self) -> i64 {
+        let mut res = 1;
+        for (_, pow) in self.iter() {
+            if pow > 1 {
+                res = 0;
+            } else {
+                res = -res;
+            }
+        }
+        res
+    }
 }
 
 /// An incomplete factorization of a number.
@@ -228,11 +241,26 @@ pub fn factor(n: u64) -> PrimeFactorization
 
 }
 
-/// Euler's totient function.
+/// Euler's totient function
 ///
 /// Factors `n` and uses the factorization to calculate the totient function.
 pub fn euler_totient(n: u64) -> u64 {
     factor(n).euler_totient()
+}
+
+/// Möbius function
+///
+/// Given `x` and `y`, calculates the Möbius function of `x`/`y`.
+///
+/// # Panics
+///
+/// Panics when y is zero.
+pub fn mobius(x: u64, y: u64) -> i64 {
+    if x % y != 0 {
+        0
+    } else {
+        factor(x/y).mobius()
+    }
 }
 
 #[cfg(test)]
