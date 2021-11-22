@@ -20,7 +20,9 @@ impl PrimeFactorization {
     }
     /// Add a power of a prime to this factorization.
     pub fn add(&mut self, prime: Prime, power: u64) {
-        *self.facs.entry(prime).or_insert(0) += power;
+        if power > 0 {
+            *self.facs.entry(prime).or_insert(0) += power;
+        }
     }
 
     /// Add all the factors in the other PrimeFactorization into this one.
@@ -231,7 +233,7 @@ fn factor_rho(n: u64) -> PrimeFactorization {
     let mut r = 1;
     while !fac.done() {
         if r > 1 {
-            println!("r={}, fac={:?}", r, fac);
+            // println!("r={}, fac={:?}", r, fac);
         }
         rho_step(&mut fac, r);
         r += 1;
